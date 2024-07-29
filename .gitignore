@@ -109,4 +109,4 @@ Temporary Items
 # User Defined #########################
 local*.txt
 local*.md
-local.env
+.env
