@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+#  apigateway:
+#    image: apigateway
+#    container_name: apigateway
+#    build:
+#      context: ./ApiGateway
+#      dockerfile: Dockerfile
+#    ports:
+#      - "5000:5000"
+##    networks:
+##      - backend
+#
+#  userapiservice:
+#    image: userapiservice
+#    container_name: userapiservice
+#    build:
+#      context: ./UserApiService
+#      dockerfile: Dockerfile
+#    ports:
+#      - "5100:5100"
+##    networks:
+##      - backend
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    command: start
+    environment:
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT_BACKCHANNEL: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-psql:5432/${KC_POSTGRES_DB}
+      KC_DB_USERNAME: ${KC_POSTGRES_USER}
+      KC_DB_PASSWORD: ${KC_POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - keycloak-psql
+#    networks:
+#      - keycloak
+
+  keycloak-psql:
+    image: postgres:latest
+    container_name: keycloakpsql
+    environment:
+      - POSTGRES_USER=${KC_POSTGRES_USER}
+      - POSTGRES_DB=${KC_POSTGRES_DB}
+      - POSTGRES_PASSWORD=${KC_POSTGRES_PASSWORD}
+    volumes:
+      - keycloak-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+#    networks:
+#      - keycloak
+#      - backend
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+#    networks:
+#      - backend
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - '5540:5540'
+    volumes:
+      - redisinsight-data:/data
+
+volumes:
+#  mssql-data:
+  keycloak-data:
+  redisinsight-data:
+
+networks:
+  backend:
+  keycloak:
+    driver: bridge
