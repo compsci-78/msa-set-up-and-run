@@ -107,6 +107,7 @@ Temporary Items
 
 
 # User Defined #########################
+.idea
 local*.txt
 local*.md
 .env
